@@ -79,18 +79,23 @@ router.post('/extract', upload.single('file'), async (req, res) => {
       filePath = downloadedPath;
       originalName = path.basename(new URL(url).pathname) || 'downloaded-file';
       
-      // Upload to Supabase
-      console.log('Uploading to Supabase...');
-      const uploadResult = await uploadToSupabase(filePath, originalName);
-      supabaseFilePath = uploadResult.path;
-      console.log(`Uploaded to Supabase: ${uploadResult.url}`);
-      
-      // Download from Supabase for processing
-      const supabaseBuffer = await downloadFromSupabase(supabaseFilePath);
-      const processFilePath = path.join(tempDir, `process-${tempFileName}`);
-      await fs.writeFile(processFilePath, supabaseBuffer);
-      filePath = processFilePath;
-      tempFiles.push(processFilePath);
+      // Try to upload to Supabase if configured (optional backup)
+      try {
+        console.log('Attempting Supabase upload...');
+        const uploadResult = await uploadToSupabase(filePath, originalName);
+        supabaseFilePath = uploadResult.path;
+        console.log(`✅ Uploaded to Supabase: ${uploadResult.url}`);
+        
+        // Download from Supabase for processing
+        const supabaseBuffer = await downloadFromSupabase(supabaseFilePath);
+        const processFilePath = path.join(tempDir, `process-${tempFileName}`);
+        await fs.writeFile(processFilePath, supabaseBuffer);
+        filePath = processFilePath;
+        tempFiles.push(processFilePath);
+      } catch (supabaseError) {
+        console.log('⚠️  Supabase not available, processing file directly:', supabaseError.message);
+        // Continue with downloaded file, no Supabase backup
+      }
     } else {
       return res.status(400).json({
         error: 'No file or URL provided',

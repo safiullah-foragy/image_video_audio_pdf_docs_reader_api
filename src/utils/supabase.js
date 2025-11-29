@@ -7,11 +7,14 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const bucketName = process.env.SUPABASE_BUCKET || 'api-content';
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase credentials in environment variables');
+// Supabase is optional - only needed for URL processing
+let supabase = null;
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+  console.log('✅ Supabase storage enabled');
+} else {
+  console.log('⚠️  Supabase not configured - URL processing will skip cloud storage (file upload still works)');
 }
-
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
  * Upload file to Supabase storage
@@ -20,6 +23,10 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * @returns {Promise<{path: string, url: string}>}
  */
 async function uploadToSupabase(fileData, fileName) {
+  if (!supabase) {
+    throw new Error('Supabase not configured - skipping cloud storage');
+  }
+  
   try {
     // Generate unique file name
     const ext = path.extname(fileName);
@@ -65,6 +72,10 @@ async function uploadToSupabase(fileData, fileName) {
  * @returns {Promise<Buffer>}
  */
 async function downloadFromSupabase(filePath) {
+  if (!supabase) {
+    throw new Error('Supabase not configured - cannot download from cloud storage');
+  }
+  
   try {
     const { data, error } = await supabase.storage
       .from(bucketName)
@@ -86,6 +97,11 @@ async function downloadFromSupabase(filePath) {
  * @param {string} filePath - File path in Supabase storage
  */
 async function deleteFromSupabase(filePath) {
+  if (!supabase) {
+    console.log('⚠️  Supabase not configured - skipping delete');
+    return;
+  }
+  
   try {
     const { error } = await supabase.storage
       .from(bucketName)
