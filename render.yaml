@@ -2,11 +2,10 @@ services:
   - type: web
     name: content-to-text-api
     env: node
-    buildCommand: |
-      apt-get update && \
-      apt-get install -y ffmpeg && \
-      npm install
+    buildCommand: ./render-build.sh
     startCommand: npm start
+    nativePackages:
+      - ffmpeg
     envVars:
       - key: NODE_ENV
         value: production
