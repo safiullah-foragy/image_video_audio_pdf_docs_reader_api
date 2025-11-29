@@ -198,7 +198,58 @@ async function* streamExplanation(extractedText, fileType, metadata = {}) {
   }
 }
 
+/**
+ * Chat with context about previously analyzed content
+ * @param {string} message - User's question
+ * @param {string} context - Previously extracted content
+ * @returns {Promise<string>} - AI response
+ */
+async function chatWithContext(message, context = '') {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key not configured. Please add OPENAI_API_KEY to your environment variables on Render.com dashboard.');
+    }
+
+    console.log('Processing chat message with context...');
+
+    const systemPrompt = context 
+      ? `You are a helpful AI assistant. You have access to previously analyzed content. Use this context to answer the user's questions accurately and comprehensively.\n\nContext:\n${context.substring(0, 10000)}`
+      : 'You are a helpful AI assistant. Answer questions clearly and accurately.';
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
+      messages: [
+        {
+          role: 'system',
+          content: systemPrompt
+        },
+        {
+          role: 'user',
+          content: message
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
+    });
+
+    const response = completion.choices[0].message.content;
+    console.log('Chat response generated successfully');
+
+    return response;
+
+  } catch (error) {
+    console.error('Error in chat:', error);
+    
+    if (error.message.includes('API key')) {
+      throw new Error('OpenAI API key not configured. Please add OPENAI_API_KEY to Render.com environment variables.');
+    }
+    
+    throw error;
+  }
+}
+
 module.exports = {
   generateExplanation,
-  streamExplanation
+  streamExplanation,
+  chatWithContext
 };

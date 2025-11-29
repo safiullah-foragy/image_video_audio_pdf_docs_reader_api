@@ -187,6 +187,39 @@ router.post('/extract', upload.single('file'), async (req, res) => {
 });
 
 /**
+ * Chat endpoint for asking questions about extracted content
+ */
+router.post('/chat', async (req, res) => {
+  try {
+    const { message, context } = req.body;
+
+    if (!message) {
+      return res.status(400).json({
+        success: false,
+        error: 'Message is required'
+      });
+    }
+
+    console.log('Processing chat message:', message);
+
+    const { chatWithContext } = require('../services/openaiService');
+    const response = await chatWithContext(message, context || '');
+
+    res.json({
+      success: true,
+      response: response
+    });
+
+  } catch (error) {
+    console.error('Chat error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * Health check for extraction service
  */
 router.get('/extract/health', (req, res) => {
