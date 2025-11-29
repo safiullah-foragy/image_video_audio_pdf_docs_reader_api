@@ -1,0 +1,35 @@
+{
+  "name": "content-to-text-api",
+  "version": "2.0.0",
+  "description": "API to convert images, videos, audio, PDFs, and docs to text with AI-powered explanations",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "node test-api.js"
+  },
+  "keywords": ["ocr", "transcription", "pdf", "video", "audio", "text-extraction"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "axios": "^1.6.2",
+    "@supabase/supabase-js": "^2.39.0",
+    "tesseract.js": "^5.0.4",
+    "fluent-ffmpeg": "^2.1.2",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "form-data": "^4.0.0",
+    "node-fetch": "^2.7.0",
+    "openai": "^4.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

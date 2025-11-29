@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: content-to-text-api
+    env: node
+    buildCommand: |
+      apt-get update && \
+      apt-get install -y ffmpeg && \
+      npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        value: https://nqydqpllowakssgfpevt.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: api-content
+      - key: OPENAI_API_KEY
+        sync: false
