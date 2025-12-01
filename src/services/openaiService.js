@@ -58,14 +58,25 @@ async function generateExplanation(extractedText, fileType, metadata = {}) {
 
   } catch (error) {
     console.error('Error generating AI explanation:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      status: error.status,
+      type: error.type
+    });
     
-    // Return graceful fallback
+    // Return graceful fallback with detailed error info
     return {
-      explanation: 'AI explanation unavailable',
+      explanation: `AI explanation unavailable (Error: ${error.message})`,
       summary: 'Unable to generate AI summary',
       keyPoints: [],
       rawText: extractedText,
-      error: error.message
+      error: error.message,
+      errorDetails: {
+        name: error.name,
+        status: error.status,
+        type: error.type
+      }
     };
   }
 }
