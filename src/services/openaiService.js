@@ -25,7 +25,7 @@ async function generateExplanation(extractedText, fileType, metadata = {}) {
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: 'gpt-4o-mini', // Updated to current model (cheaper and faster)
       messages: [
         {
           role: 'system',
@@ -169,7 +169,7 @@ async function* streamExplanation(extractedText, fileType, metadata = {}) {
     const prompt = buildPrompt(extractedText, fileType, metadata);
 
     const stream = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
@@ -217,7 +217,7 @@ async function chatWithContext(message, context = '') {
       : 'You are a helpful AI assistant. Answer questions clearly and accurately.';
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
