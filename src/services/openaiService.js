@@ -1,8 +1,8 @@
-const OpenAI = require('openai');
+const Groq = require('groq-sdk');
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+// Initialize Groq client (FREE AI API)
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
 });
 
 /**
@@ -14,18 +14,18 @@ const openai = new OpenAI({
  */
 async function generateExplanation(extractedText, fileType, metadata = {}) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('Groq API key not configured');
     }
 
-    console.log('Generating AI explanation for extracted content...');
+    console.log('Generating AI explanation using Groq (FREE)...');
 
-    // Create a context-aware prompt based on file type
+    // Create a context-aware prompt
     const prompt = buildPrompt(extractedText, fileType, metadata);
 
-    // Call OpenAI API
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // Updated to current model (cheaper and faster)
+    // Call Groq API (same interface as OpenAI)
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile', // Fast free model
       messages: [
         {
           role: 'system',
@@ -53,7 +53,7 @@ async function generateExplanation(extractedText, fileType, metadata = {}) {
       keyPoints: parsed.keyPoints || [],
       rawText: extractedText,
       aiModel: completion.model,
-      tokensUsed: completion.usage.total_tokens
+      tokensUsed: completion.usage?.total_tokens || 0
     };
 
   } catch (error) {
@@ -173,14 +173,14 @@ function parseAIResponse(response) {
  */
 async function* streamExplanation(extractedText, fileType, metadata = {}) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('Groq API key not configured');
     }
 
     const prompt = buildPrompt(extractedText, fileType, metadata);
 
-    const stream = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+    const stream = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -217,18 +217,18 @@ async function* streamExplanation(extractedText, fileType, metadata = {}) {
  */
 async function chatWithContext(message, context = '') {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured. Please add OPENAI_API_KEY to your environment variables on Render.com dashboard.');
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('Groq API key not configured. Please add GROQ_API_KEY to your environment variables on Render.com dashboard.');
     }
 
-    console.log('Processing chat message with context...');
+    console.log('Processing chat message using Groq (FREE)...');
 
     const systemPrompt = context 
       ? `You are a helpful AI assistant. You have access to previously analyzed content. Use this context to answer the user's questions accurately and comprehensively.\n\nContext:\n${context.substring(0, 10000)}`
       : 'You are a helpful AI assistant. Answer questions clearly and accurately.';
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -252,7 +252,7 @@ async function chatWithContext(message, context = '') {
     console.error('Error in chat:', error);
     
     if (error.message.includes('API key')) {
-      throw new Error('OpenAI API key not configured. Please add OPENAI_API_KEY to Render.com environment variables.');
+      throw new Error('Groq API key not configured. Please add GROQ_API_KEY to Render.com environment variables.');
     }
     
     throw error;
